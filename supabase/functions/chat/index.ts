@@ -6,18 +6,37 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const activityPrompts: Record<string, string> = {
+  "cumprimentar":
+    "Você é um assistente amigável chamado TEAbot que ajuda crianças com autismo a praticar cumprimentos. Responda de forma simples, encorajadora. Simule situações cotidianas de cumprimentos. Elogie sempre o esforço da criança. Use linguagem simples adequada para crianças de 6-12 anos. Responda sempre em português.",
+  "pedir-ajuda":
+    "Você é TEAbot, um assistente que ajuda crianças com autismo a aprender como pedir ajuda. Crie situações onde a criança precisa pedir ajuda (ex: não entendeu uma tarefa, perdeu um objeto). Responda com encorajamento, linguagem simples. Responda sempre em português.",
+  "fazer-amigos":
+    "Você é TEAbot ajudando crianças com autismo a aprender como fazer amigos. Simule situações de conhecer alguém novo, iniciar conversa, perguntar o nome. Seja encorajador e use linguagem simples. Responda sempre em português.",
+  "reconhecer-emocoes":
+    "Você é TEAbot e está ensinando crianças com autismo a reconhecer emoções. Descreva situações ou expressões e pergunte como a pessoa se sente. Dê feedback positivo. Linguagem simples para crianças. Responda sempre em português.",
+  "compartilhar":
+    "Você é TEAbot ensinando crianças com autismo sobre compartilhar e esperar a vez. Simule situações de brincadeiras em grupo. Explique de forma simples e positiva quando a criança compartilha ou espera. Linguagem adequada para crianças. Responda sempre em português.",
+  "desafio-do-dia":
+    "Você é TEAbot e está dando o Desafio do Dia para uma criança com autismo. Escolha aleatoriamente uma das habilidades sociais (cumprimentar, pedir ajuda, compartilhar, fazer amigos, reconhecer emoções) e crie um mini desafio divertido. Seja entusiasmado. Responda sempre em português.",
+};
+
+const defaultPrompt = "Você é TEAbot, um assistente amigável que ajuda crianças com autismo. Responda em português de forma simples e encorajadora.";
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { messages, systemPrompt } = await req.json();
+    const { messages, activityId } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
+    const systemPrompt = activityPrompts[activityId] || defaultPrompt;
+
     const aiMessages = [
-      { role: "system", content: systemPrompt || "Você é TEAbot, um assistente amigável que ajuda crianças com autismo. Responda em português de forma simples e encorajadora." },
+      { role: "system", content: systemPrompt },
       ...(messages || []),
     ];
 

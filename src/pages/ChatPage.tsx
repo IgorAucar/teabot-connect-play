@@ -46,7 +46,7 @@ const ChatPage = () => {
       const { data, error } = await supabase.functions.invoke("chat", {
         body: {
           messages: allMessages.map((m) => ({ role: m.role, content: m.content })),
-          systemPrompt: activity?.systemPrompt,
+          activityId,
         },
       });
 
@@ -58,11 +58,13 @@ const ChatPage = () => {
       };
       setMessages((prev) => [...prev, assistantMsg]);
 
-      // Show feedback after each exchange
-      const fb = feedbackMessages[Math.floor(Math.random() * feedbackMessages.length)];
-      setFeedbackText(fb);
-      setFeedbackVisible(false);
-      setTimeout(() => setFeedbackVisible(true), 100);
+      // Show feedback bloom after user messages (not initial greeting)
+      if (allMessages.length > 0) {
+        const fb = feedbackMessages[Math.floor(Math.random() * feedbackMessages.length)];
+        setFeedbackText(fb);
+        setFeedbackVisible(false);
+        setTimeout(() => setFeedbackVisible(true), 100);
+      }
 
       setExchangeCount((c) => {
         const next = c + 1;
@@ -86,8 +88,7 @@ const ChatPage = () => {
   useEffect(() => {
     if (activity && !initializedRef.current) {
       initializedRef.current = true;
-      const greeting: ChatMessage[] = [];
-      sendToAI(greeting);
+      sendToAI([]);
     }
   }, [activity, sendToAI]);
 
@@ -120,7 +121,6 @@ const ChatPage = () => {
 
   return (
     <div className="flex h-screen flex-col bg-background">
-      {/* Header — minimal, focused */}
       <div className="flex items-center gap-3 border-b border-border px-4 py-3">
         <Link to="/dashboard">
           <Button variant="back" size="sm">
@@ -131,7 +131,6 @@ const ChatPage = () => {
         <h1 className="font-heading text-lg font-bold text-foreground">{activity.title}</h1>
       </div>
 
-      {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
         <div className="mx-auto flex max-w-2xl flex-col gap-4">
           {messages.map((msg, i) => (
@@ -142,7 +141,6 @@ const ChatPage = () => {
         </div>
       </div>
 
-      {/* Input */}
       <div className="border-t border-border bg-card px-4 py-3">
         <div className="mx-auto max-w-2xl">
           <ChatInput onSend={handleSend} onHint={handleHint} disabled={isLoading} />
