@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ChatBubble from "@/components/ChatBubble";
 import ChatInput from "@/components/ChatInput";
+import ChatOptions from "@/components/ChatOptions";
 import TypingIndicator from "@/components/TypingIndicator";
 import FeedbackBadge from "@/components/FeedbackBadge";
 import { getActivityById } from "@/lib/activities";
@@ -11,12 +12,17 @@ import type { ChatMessage } from "@/lib/app-state";
 import { useAppState } from "@/hooks/useAppState";
 import { supabase } from "@/integrations/supabase/client";
 
+interface ChatOption {
+  emoji: string;
+  label: string;
+}
+
 const feedbackMessages = [
   "Muito bem!",
-  "Ótimo trabalho!",
+  "Otimo trabalho!",
   "Continue assim!",
   "Excelente!",
-  "Parabéns!",
+  "Parabens!",
 ];
 
 const ChatPage = () => {
@@ -25,6 +31,7 @@ const ChatPage = () => {
   const { markCompleted } = useAppState();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [currentOptions, setCurrentOptions] = useState<ChatOption[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [feedbackVisible, setFeedbackVisible] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
@@ -38,10 +45,11 @@ const ChatPage = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isLoading]);
+  }, [messages, isLoading, currentOptions]);
 
   const sendToAI = useCallback(async (allMessages: ChatMessage[]) => {
     setIsLoading(true);
+    setCurrentOptions([]);
     try {
       const { data, error } = await supabase.functions.invoke("chat", {
         body: {
@@ -54,11 +62,11 @@ const ChatPage = () => {
 
       const assistantMsg: ChatMessage = {
         role: "assistant",
-        content: data?.content || "Desculpe, não consegui responder agora. Tente novamente!",
+        content: data?.content || "Ola! Como posso te ajudar? 😊",
       };
       setMessages((prev) => [...prev, assistantMsg]);
+      setCurrentOptions(data?.options || []);
 
-      // Show feedback bloom after user messages (not initial greeting)
       if (allMessages.length > 0) {
         const fb = feedbackMessages[Math.floor(Math.random() * feedbackMessages.length)];
         setFeedbackText(fb);
@@ -77,14 +85,13 @@ const ChatPage = () => {
       console.error("Chat error:", err);
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Ops! Algo deu errado. Tente novamente." },
+        { role: "assistant", content: "Ops! Algo deu errado. Tente novamente. 😊" },
       ]);
     } finally {
       setIsLoading(false);
     }
   }, [activity, activityId, markCompleted]);
 
-  // Send initial greeting
   useEffect(() => {
     if (activity && !initializedRef.current) {
       initializedRef.current = true;
@@ -99,18 +106,20 @@ const ChatPage = () => {
     sendToAI(updated);
   };
 
+  const handleOptionSelect = (option: ChatOption) => {
+    const text = `${option.emoji} ${option.label}`;
+    handleSend(text);
+  };
+
   const handleHint = () => {
-    const hintMsg: ChatMessage = { role: "user", content: "Pode me dar uma dica?" };
-    const updated = [...messages, hintMsg];
-    setMessages(updated);
-    sendToAI(updated);
+    handleSend("Pode me dar uma dica?");
   };
 
   if (!activity) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="text-center">
-          <p className="mb-4 font-heading text-xl text-foreground">Atividade não encontrada.</p>
+          <p className="mb-4 font-heading text-xl text-foreground">Atividade nao encontrada.</p>
           <Link to="/dashboard">
             <Button variant="back">Voltar ao Dashboard</Button>
           </Link>
@@ -137,6 +146,9 @@ const ChatPage = () => {
             <ChatBubble key={i} role={msg.role} content={msg.content} />
           ))}
           {isLoading && <TypingIndicator />}
+          {!isLoading && currentOptions.length > 0 && (
+            <ChatOptions options={currentOptions} onSelect={handleOptionSelect} disabled={isLoading} />
+          )}
           <FeedbackBadge message={feedbackText} visible={feedbackVisible} />
         </div>
       </div>

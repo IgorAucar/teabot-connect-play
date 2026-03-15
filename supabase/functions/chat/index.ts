@@ -6,22 +6,59 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const baseInstruction = `REGRAS IMPORTANTES:
+- Responda SEMPRE com frases MUITO curtas (máximo 1-2 linhas).
+- Use emojis para tornar a mensagem visual.
+- NUNCA escreva parágrafos longos.
+- Fale como se estivesse conversando com uma criança de 6-12 anos.
+- Seja carinhoso, paciente e encorajador.
+- SEMPRE forneça opções de resposta para a criança escolher.
+- Cada opção deve ter um emoji e um texto curto (2-4 palavras).
+- Forneça entre 2 e 4 opções.
+- Responda sempre em português brasileiro.`;
+
 const activityPrompts: Record<string, string> = {
-  "cumprimentar":
-    "Você é um assistente amigável chamado TEAbot que ajuda crianças com autismo a praticar cumprimentos. Responda de forma simples, encorajadora. Simule situações cotidianas de cumprimentos. Elogie sempre o esforço da criança. Use linguagem simples adequada para crianças de 6-12 anos. Responda sempre em português.",
-  "pedir-ajuda":
-    "Você é TEAbot, um assistente que ajuda crianças com autismo a aprender como pedir ajuda. Crie situações onde a criança precisa pedir ajuda (ex: não entendeu uma tarefa, perdeu um objeto). Responda com encorajamento, linguagem simples. Responda sempre em português.",
-  "fazer-amigos":
-    "Você é TEAbot ajudando crianças com autismo a aprender como fazer amigos. Simule situações de conhecer alguém novo, iniciar conversa, perguntar o nome. Seja encorajador e use linguagem simples. Responda sempre em português.",
-  "reconhecer-emocoes":
-    "Você é TEAbot e está ensinando crianças com autismo a reconhecer emoções. Descreva situações ou expressões e pergunte como a pessoa se sente. Dê feedback positivo. Linguagem simples para crianças. Responda sempre em português.",
-  "compartilhar":
-    "Você é TEAbot ensinando crianças com autismo sobre compartilhar e esperar a vez. Simule situações de brincadeiras em grupo. Explique de forma simples e positiva quando a criança compartilha ou espera. Linguagem adequada para crianças. Responda sempre em português.",
-  "desafio-do-dia":
-    "Você é TEAbot e está dando o Desafio do Dia para uma criança com autismo. Escolha aleatoriamente uma das habilidades sociais (cumprimentar, pedir ajuda, compartilhar, fazer amigos, reconhecer emoções) e crie um mini desafio divertido. Seja entusiasmado. Responda sempre em português.",
+  "cumprimentar": `Você é TEAbot, um amigo que ensina crianças com autismo a cumprimentar pessoas. ${baseInstruction}\nSimule situações simples de cumprimentos do dia a dia.`,
+  "pedir-ajuda": `Você é TEAbot, um amigo que ensina crianças com autismo a pedir ajuda. ${baseInstruction}\nCrie situações simples onde a criança precisa pedir ajuda.`,
+  "fazer-amigos": `Você é TEAbot, um amigo que ensina crianças com autismo a fazer amigos. ${baseInstruction}\nSimule situações de conhecer alguém novo.`,
+  "reconhecer-emocoes": `Você é TEAbot, um amigo que ensina crianças com autismo a reconhecer emoções. ${baseInstruction}\nDescreva situações e pergunte como a pessoa se sente. Use emojis de emoções.`,
+  "compartilhar": `Você é TEAbot, um amigo que ensina crianças com autismo a compartilhar e esperar a vez. ${baseInstruction}\nSimule situações de brincadeiras em grupo.`,
+  "desafio-do-dia": `Você é TEAbot dando um Desafio do Dia divertido para uma criança com autismo. ${baseInstruction}\nEscolha uma habilidade social e crie um mini desafio.`,
 };
 
-const defaultPrompt = "Você é TEAbot, um assistente amigável que ajuda crianças com autismo. Responda em português de forma simples e encorajadora.";
+const defaultPrompt = `Você é TEAbot, um amigo que ajuda crianças com autismo. ${baseInstruction}`;
+
+const responseToolDef = {
+  type: "function",
+  function: {
+    name: "send_message",
+    description: "Send a message to the child with clickable response options",
+    parameters: {
+      type: "object",
+      properties: {
+        message: {
+          type: "string",
+          description: "Short message to the child (max 2 sentences, with emojis)",
+        },
+        options: {
+          type: "array",
+          description: "2-4 clickable response options for the child",
+          items: {
+            type: "object",
+            properties: {
+              emoji: { type: "string", description: "A single emoji representing the option" },
+              label: { type: "string", description: "Short label (2-4 words)" },
+            },
+            required: ["emoji", "label"],
+            additionalProperties: false,
+          },
+        },
+      },
+      required: ["message", "options"],
+      additionalProperties: false,
+    },
+  },
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -50,12 +87,14 @@ serve(async (req) => {
         model: "google/gemini-3-flash-preview",
         messages: aiMessages,
         stream: false,
+        tools: [responseToolDef],
+        tool_choice: { type: "function", function: { name: "send_message" } },
       }),
     });
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Muitas mensagens enviadas. Espere um pouco e tente novamente." }), {
+        return new Response(JSON.stringify({ error: "Muitas mensagens! Espere um pouquinho." }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -72,9 +111,26 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || "Não consegui gerar uma resposta.";
+    
+    // Parse tool call response
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    if (toolCall?.function?.arguments) {
+      try {
+        const parsed = JSON.parse(toolCall.function.arguments);
+        return new Response(JSON.stringify({
+          content: parsed.message || "Olá! 😊",
+          options: parsed.options || [],
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch {
+        // Fall through to content fallback
+      }
+    }
 
-    return new Response(JSON.stringify({ content }), {
+    // Fallback to regular content
+    const content = data.choices?.[0]?.message?.content || "Olá! Como posso te ajudar? 😊";
+    return new Response(JSON.stringify({ content, options: [] }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {

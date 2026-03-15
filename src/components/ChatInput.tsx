@@ -27,19 +27,26 @@ const ChatInput = ({ onSend, onHint, disabled }: ChatInputProps) => {
         onClick={onHint}
         disabled={disabled}
         aria-label="Dica"
+        className="h-12 w-12 shrink-0 rounded-xl"
       >
-        <Lightbulb className="h-5 w-5" />
+        <Lightbulb className="h-6 w-6" />
       </Button>
       <input
         type="text"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Digite sua resposta..."
+        placeholder="Ou digite aqui..."
         disabled={disabled}
-        className="flex-1 bg-transparent px-2 py-2 font-body text-base text-foreground placeholder:text-muted-foreground focus:outline-none"
+        className="flex-1 bg-transparent px-2 py-3 font-body text-lg text-foreground placeholder:text-muted-foreground focus:outline-none"
       />
-      <Button type="submit" size="icon" disabled={disabled || !text.trim()} aria-label="Enviar">
-        <Send className="h-5 w-5" />
+      <Button
+        type="submit"
+        size="icon"
+        disabled={disabled || !text.trim()}
+        aria-label="Enviar"
+        className="h-12 w-12 shrink-0 rounded-xl"
+      >
+        <Send className="h-6 w-6" />
       </Button>
     </form>
   );
