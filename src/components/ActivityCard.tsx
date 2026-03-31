@@ -24,8 +24,8 @@ const ActivityCard = ({ activity, completed }: ActivityCardProps) => {
       to={`/chat/${activity.id}`}
       className={`flex flex-col items-center gap-3 rounded-2xl border-2 p-6 text-center transition-colors ${
         completed
-          ? "border-accent bg-accent/10"
-          : "border-border bg-card"
+          ? "border-success bg-success/10"
+          : "border-border bg-card hover:border-primary/40 hover:shadow-md"
       }`}
     >
       <div
@@ -40,7 +40,7 @@ const ActivityCard = ({ activity, completed }: ActivityCardProps) => {
       </h3>
       <p className="text-sm text-muted-foreground">{activity.description}</p>
       {completed && (
-        <span className="rounded-full bg-accent px-3 py-1 font-heading text-xs font-semibold text-accent-foreground">
+        <span className="rounded-full bg-success px-3 py-1 font-heading text-xs font-semibold text-success-foreground">
           Concluído
         </span>
       )}

@@ -42,7 +42,7 @@ const Progress = () => {
                 <Tooltip />
                 <Bar dataKey="sessões" radius={[8, 8, 0, 0]}>
                   {chartData.map((_, i) => (
-                    <Cell key={i} fill={i % 2 === 0 ? "hsl(263, 84%, 58%)" : "hsl(24, 94%, 53%)"} />
+                    <Cell key={i} fill={i % 2 === 0 ? "hsl(208, 72%, 42%)" : "hsl(27, 100%, 50%)"} />
                   ))}
                 </Bar>
               </BarChart>
@@ -69,7 +69,7 @@ const Progress = () => {
                     </p>
                     <p className="text-xs text-muted-foreground">{log.date}</p>
                   </div>
-                  <span className={`rounded-full px-3 py-1 font-heading text-xs font-semibold ${log.completed ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"}`}>
+                  <span className={`rounded-full px-3 py-1 font-heading text-xs font-semibold ${log.completed ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"}`}>
                     {log.completed ? "Concluído" : "Em progresso"}
                   </span>
                 </li>
