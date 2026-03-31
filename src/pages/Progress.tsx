@@ -69,7 +69,7 @@ const Progress = () => {
                     </p>
                     <p className="text-xs text-muted-foreground">{log.date}</p>
                   </div>
-                  <span className={`rounded-full px-3 py-1 font-heading text-xs font-semibold ${log.completed ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"}`}>
+                  <span className={`rounded-full px-3 py-1 font-heading text-xs font-semibold ${log.completed ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"}`}>
                     {log.completed ? "Concluído" : "Em progresso"}
                   </span>
                 </li>

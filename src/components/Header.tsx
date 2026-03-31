@@ -38,8 +38,8 @@ const Header = () => {
               to={item.path}
               className={`rounded-lg px-3 py-2 font-heading text-xs font-semibold ${
                 location.pathname === item.path
-                  ? "bg-primary text-primary-foreground"
-                  : "text-foreground"
+                  ? "bg-primary-foreground text-primary"
+                  : "text-primary-foreground/80"
               }`}
             >
               {item.label}

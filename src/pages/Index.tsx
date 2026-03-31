@@ -17,7 +17,7 @@ const Home = () => {
           <h1 className="mb-4 font-heading text-4xl font-bold text-foreground md:text-5xl">
             InovaTEA
           </h1>
-          <p className="mb-2 font-heading text-xl text-primary md:text-2xl">
+          <p className="mb-2 font-heading text-xl text-accent md:text-2xl">
             Aprendendo a se conectar com o mundo!
           </p>
           <p className="mb-8 max-w-lg text-base text-muted-foreground">

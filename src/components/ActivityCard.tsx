@@ -40,7 +40,7 @@ const ActivityCard = ({ activity, completed }: ActivityCardProps) => {
       </h3>
       <p className="text-sm text-muted-foreground">{activity.description}</p>
       {completed && (
-        <span className="rounded-full bg-accent px-3 py-1 font-heading text-xs font-semibold text-accent-foreground">
+        <span className="rounded-full bg-success px-3 py-1 font-heading text-xs font-semibold text-success-foreground">
           Concluído
         </span>
       )}
