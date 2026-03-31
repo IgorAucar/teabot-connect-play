@@ -42,7 +42,7 @@ const Progress = () => {
                 <Tooltip />
                 <Bar dataKey="sessões" radius={[8, 8, 0, 0]}>
                   {chartData.map((_, i) => (
-                    <Cell key={i} fill={i % 2 === 0 ? "hsl(263, 84%, 58%)" : "hsl(24, 94%, 53%)"} />
+                    <Cell key={i} fill={i % 2 === 0 ? "hsl(208, 72%, 42%)" : "hsl(27, 100%, 50%)"} />
                   ))}
                 </Bar>
               </BarChart>
