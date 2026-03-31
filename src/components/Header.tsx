@@ -13,7 +13,7 @@ const Header = () => {
   return (
     <header className="border-b border-border bg-primary">
       <div className="container flex items-center justify-between py-4">
-        <Link to="/" className="font-heading text-2xl font-bold text-primary">
+        <Link to="/" className="font-heading text-2xl font-bold text-primary-foreground">
           InovaTEA
         </Link>
         <nav className="hidden gap-2 md:flex">
