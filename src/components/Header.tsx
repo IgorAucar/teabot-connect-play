@@ -11,7 +11,7 @@ const Header = () => {
   const location = useLocation();
 
   return (
-    <header className="border-b border-border bg-card">
+    <header className="border-b border-border bg-primary">
       <div className="container flex items-center justify-between py-4">
         <Link to="/" className="font-heading text-2xl font-bold text-primary">
           InovaTEA
