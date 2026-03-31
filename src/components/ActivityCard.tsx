@@ -24,8 +24,8 @@ const ActivityCard = ({ activity, completed }: ActivityCardProps) => {
       to={`/chat/${activity.id}`}
       className={`flex flex-col items-center gap-3 rounded-2xl border-2 p-6 text-center transition-colors ${
         completed
-          ? "border-accent bg-accent/10"
-          : "border-border bg-card"
+          ? "border-success bg-success/10"
+          : "border-border bg-card hover:border-primary/40 hover:shadow-md"
       }`}
     >
       <div
