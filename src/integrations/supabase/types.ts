@@ -14,7 +14,129 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activity_progress: {
+        Row: {
+          activity_id: string
+          activity_title: string
+          completed_at: string
+          created_at: string
+          device_id: string
+          id: string
+          stars: number
+        }
+        Insert: {
+          activity_id: string
+          activity_title: string
+          completed_at?: string
+          created_at?: string
+          device_id: string
+          id?: string
+          stars?: number
+        }
+        Update: {
+          activity_id?: string
+          activity_title?: string
+          completed_at?: string
+          created_at?: string
+          device_id?: string
+          id?: string
+          stars?: number
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          activity_id: string
+          content: string
+          created_at: string
+          device_id: string
+          id: string
+          role: string
+        }
+        Insert: {
+          activity_id: string
+          content: string
+          created_at?: string
+          device_id: string
+          id?: string
+          role: string
+        }
+        Update: {
+          activity_id?: string
+          content?: string
+          created_at?: string
+          device_id?: string
+          id?: string
+          role?: string
+        }
+        Relationships: []
+      }
+      child_profiles: {
+        Row: {
+          avatar: string | null
+          created_at: string
+          device_id: string
+          id: string
+          name: string
+          total_stars: number
+          updated_at: string
+        }
+        Insert: {
+          avatar?: string | null
+          created_at?: string
+          device_id: string
+          id?: string
+          name?: string
+          total_stars?: number
+          updated_at?: string
+        }
+        Update: {
+          avatar?: string | null
+          created_at?: string
+          device_id?: string
+          id?: string
+          name?: string
+          total_stars?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      session_logs: {
+        Row: {
+          activity_id: string
+          activity_title: string
+          completed: boolean
+          created_at: string
+          device_id: string
+          duration_seconds: number
+          ended_at: string | null
+          id: string
+          started_at: string
+        }
+        Insert: {
+          activity_id: string
+          activity_title: string
+          completed?: boolean
+          created_at?: string
+          device_id: string
+          duration_seconds?: number
+          ended_at?: string | null
+          id?: string
+          started_at?: string
+        }
+        Update: {
+          activity_id?: string
+          activity_title?: string
+          completed?: boolean
+          created_at?: string
+          device_id?: string
+          duration_seconds?: number
+          ended_at?: string | null
+          id?: string
+          started_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
