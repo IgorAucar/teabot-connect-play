@@ -48,6 +48,20 @@ const ChatPage = () => {
     scrollToBottom();
   }, [messages, isLoading, currentOptions]);
 
+  const persistMessage = useCallback(
+    (role: "user" | "assistant", content: string) => {
+      if (!activityId) return;
+      const deviceId = getDeviceId();
+      supabase
+        .from("chat_messages")
+        .insert({ device_id: deviceId, activity_id: activityId, role, content })
+        .then(({ error }) => {
+          if (error) console.error("Failed to persist message:", error);
+        });
+    },
+    [activityId]
+  );
+
   const sendToAI = useCallback(async (allMessages: ChatMessage[]) => {
     setIsLoading(true);
     setCurrentOptions([]);
@@ -63,10 +77,11 @@ const ChatPage = () => {
 
       const assistantMsg: ChatMessage = {
         role: "assistant",
-        content: data?.content || "Ola! Como posso te ajudar? 😊",
+        content: data?.content || "Ola! Como posso te ajudar?",
       };
       setMessages((prev) => [...prev, assistantMsg]);
       setCurrentOptions(data?.options || []);
+      persistMessage("assistant", assistantMsg.content);
 
       if (allMessages.length > 0) {
         const fb = feedbackMessages[Math.floor(Math.random() * feedbackMessages.length)];
@@ -86,12 +101,12 @@ const ChatPage = () => {
       console.error("Chat error:", err);
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Ops! Algo deu errado. Tente novamente. 😊" },
+        { role: "assistant", content: "Ops! Algo deu errado. Tente novamente." },
       ]);
     } finally {
       setIsLoading(false);
     }
-  }, [activity, activityId, markCompleted]);
+  }, [activity, activityId, markCompleted, persistMessage]);
 
   useEffect(() => {
     if (activity && !initializedRef.current) {
@@ -104,6 +119,7 @@ const ChatPage = () => {
     const userMsg: ChatMessage = { role: "user", content: text };
     const updated = [...messages, userMsg];
     setMessages(updated);
+    persistMessage("user", text);
     sendToAI(updated);
   };
 
