@@ -11,6 +11,7 @@ import { getActivityById } from "@/lib/activities";
 import type { ChatMessage } from "@/lib/app-state";
 import { useAppState } from "@/hooks/useAppState";
 import { supabase } from "@/integrations/supabase/client";
+import { getDeviceId } from "@/lib/device-id";
 
 interface ChatOption {
   emoji: string;
