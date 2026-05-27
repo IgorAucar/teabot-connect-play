@@ -72,8 +72,7 @@ O projeto foi desenvolvido utilizando tecnologias modernas de desenvolvimento we
 * React
 * TypeScript
 * Vite
-* Tailwind CSS
-* shadcn/ui
+
 
 ---
 
@@ -255,7 +254,7 @@ O sistema foi projetado para:
 # Instituição
 
 Faculdade Metropolitana de Manaus — FAMETRO
-Curso de Análise e Desenvolvimento de Sistemas
+Curso de Análise e Desenvolvimento de Sistemas - ADS241N01
 
 ---
 
