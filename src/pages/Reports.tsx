@@ -108,7 +108,7 @@ const Reports = () => {
       const [actRes, chatRes, repRes] = await Promise.all([
         supabase
           .from("activity_progress")
-          .select("activity_title, completed_at")
+          .select("activity_id, activity_title, completed_at")
           .eq("user_id", selectedId)
           .order("completed_at", { ascending: false }),
         supabase
