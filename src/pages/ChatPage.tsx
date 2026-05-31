@@ -92,7 +92,8 @@ const ChatPage = () => {
 
       setExchangeCount((c) => {
         const next = c + 1;
-        if (next >= 3 && activityId) {
+        // Register completion exactly once, on the 3rd exchange.
+        if (next === 3 && activityId) {
           markCompleted(activityId, activity?.title || "");
         }
         return next;
