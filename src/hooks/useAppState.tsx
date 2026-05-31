@@ -3,6 +3,7 @@ import type { AppState, SessionLog } from "@/lib/app-state";
 import { initialAppState } from "@/lib/app-state";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { getActivityById } from "@/lib/activities";
 
 interface AppStateCtx {
   state: AppState;
