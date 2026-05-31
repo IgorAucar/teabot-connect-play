@@ -63,6 +63,22 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/relatorios"
+                element={
+                  <ProtectedRoute requireRole="therapist">
+                    <Reports />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/meus-relatorios"
+                element={
+                  <ProtectedRoute requireRole="child">
+                    <MyReports />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AppStateProvider>
