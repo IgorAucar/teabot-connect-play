@@ -3,6 +3,7 @@ import type { AppState, SessionLog } from "@/lib/app-state";
 import { initialAppState } from "@/lib/app-state";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { getActivityById } from "@/lib/activities";
 
 interface AppStateCtx {
   state: AppState;
@@ -73,11 +74,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const markCompleted = useCallback(
     (activityId: string, activityTitle: string) => {
       if (!user) return;
+      // Always prefer canonical title from catalog so we never store the wrong name.
+      const canonicalTitle = getActivityById(activityId)?.title || activityTitle || activityId;
       const today = new Date().toLocaleDateString("pt-BR");
 
       setState((prev) => {
         const alreadyDone = prev.completedToday.includes(activityId);
-        const log: SessionLog = { activityId, activityTitle, date: today, completed: true };
+        const log: SessionLog = { activityId, activityTitle: canonicalTitle, date: today, completed: true };
         return {
           completedToday: alreadyDone ? prev.completedToday : [...prev.completedToday, activityId],
           stars: alreadyDone ? prev.stars : prev.stars + 1,
@@ -91,7 +94,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
             user_id: user.id,
             device_id: user.id,
             activity_id: activityId,
-            activity_title: activityTitle,
+            activity_title: canonicalTitle,
             completed: true,
             ended_at: new Date().toISOString(),
           });
@@ -111,7 +114,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
               user_id: user.id,
               device_id: user.id,
               activity_id: activityId,
-              activity_title: activityTitle,
+              activity_title: canonicalTitle,
               stars: 1,
             });
           }

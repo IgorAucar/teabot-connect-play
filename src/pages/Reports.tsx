@@ -8,6 +8,21 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
 import { Download, Loader2, Sparkles, FileText, Save } from "lucide-react";
+import { getActivityById } from "@/lib/activities";
+
+/**
+ * Resolve activity name from the canonical catalog using activity_id.
+ * Falls back to any stored title, then to the raw id.
+ * This prevents stale/incorrect activity_title values in the DB from
+ * making every record show up as the wrong activity name.
+ */
+const resolveActivityName = (activityId?: string | null, storedTitle?: string | null) => {
+  if (activityId) {
+    const found = getActivityById(activityId);
+    if (found) return found.title;
+  }
+  return storedTitle || activityId || "Atividade";
+};
 
 interface Child {
   user_id: string;
@@ -28,6 +43,7 @@ interface ReportRow {
 }
 
 interface ActivityRow {
+  activity_id: string;
   activity_title: string;
   completed_at: string;
 }
@@ -92,7 +108,7 @@ const Reports = () => {
       const [actRes, chatRes, repRes] = await Promise.all([
         supabase
           .from("activity_progress")
-          .select("activity_title, completed_at")
+          .select("activity_id, activity_title, completed_at")
           .eq("user_id", selectedId)
           .order("completed_at", { ascending: false }),
         supabase
@@ -304,7 +320,7 @@ const Reports = () => {
                         ) : (
                           activities.map((a, i) => (
                             <p key={i} className="text-muted-foreground">
-                              • {a.activity_title} —{" "}
+                              • {resolveActivityName(a.activity_id, a.activity_title)} —{" "}
                               <span className="text-xs">
                                 {new Date(a.completed_at).toLocaleDateString("pt-BR")}
                               </span>
