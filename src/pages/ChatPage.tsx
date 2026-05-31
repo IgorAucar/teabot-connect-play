@@ -11,7 +11,7 @@ import { getActivityById } from "@/lib/activities";
 import type { ChatMessage } from "@/lib/app-state";
 import { useAppState } from "@/hooks/useAppState";
 import { supabase } from "@/integrations/supabase/client";
-import { getDeviceId } from "@/lib/device-id";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ChatOption {
   emoji: string;
@@ -30,6 +30,7 @@ const ChatPage = () => {
   const { activityId } = useParams<{ activityId: string }>();
   const activity = getActivityById(activityId || "");
   const { markCompleted } = useAppState();
+  const { user } = useAuth();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentOptions, setCurrentOptions] = useState<ChatOption[]>([]);
@@ -50,16 +51,15 @@ const ChatPage = () => {
 
   const persistMessage = useCallback(
     (role: "user" | "assistant", content: string) => {
-      if (!activityId) return;
-      const deviceId = getDeviceId();
+      if (!activityId || !user) return;
       supabase
         .from("chat_messages")
-        .insert({ device_id: deviceId, activity_id: activityId, role, content })
+        .insert({ user_id: user.id, device_id: user.id, activity_id: activityId, role, content })
         .then(({ error }) => {
           if (error) console.error("Failed to persist message:", error);
         });
     },
-    [activityId]
+    [activityId, user]
   );
 
   const sendToAI = useCallback(async (allMessages: ChatMessage[]) => {
