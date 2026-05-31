@@ -13,11 +13,13 @@ const Header = () => {
     : role === "therapist"
     ? [
         { path: "/terapeuta", label: "Pacientes" },
+        { path: "/relatorios", label: "Relatórios" },
         { path: "/sobre", label: "Sobre" },
       ]
     : [
         { path: "/dashboard", label: "Atividades" },
         { path: "/progresso", label: "Progresso" },
+        { path: "/meus-relatorios", label: "Meus Relatórios" },
         { path: "/sobre", label: "Sobre" },
       ];
 

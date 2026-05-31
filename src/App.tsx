@@ -13,6 +13,8 @@ import ChatPage from "./pages/ChatPage.tsx";
 import Progress from "./pages/Progress.tsx";
 import About from "./pages/About.tsx";
 import TherapistDashboard from "./pages/TherapistDashboard.tsx";
+import Reports from "./pages/Reports.tsx";
+import MyReports from "./pages/MyReports.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -58,6 +60,22 @@ const App = () => (
                 element={
                   <ProtectedRoute requireRole="therapist">
                     <TherapistDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/relatorios"
+                element={
+                  <ProtectedRoute requireRole="therapist">
+                    <Reports />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/meus-relatorios"
+                element={
+                  <ProtectedRoute requireRole="child">
+                    <MyReports />
                   </ProtectedRoute>
                 }
               />

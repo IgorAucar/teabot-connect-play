@@ -167,6 +167,42 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          child_id: string
+          created_at: string
+          id: string
+          observations: string | null
+          report_content: string
+          source: string
+          therapist_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          child_id: string
+          created_at?: string
+          id?: string
+          observations?: string | null
+          report_content: string
+          source?: string
+          therapist_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          child_id?: string
+          created_at?: string
+          id?: string
+          observations?: string | null
+          report_content?: string
+          source?: string
+          therapist_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       session_logs: {
         Row: {
           activity_id: string
