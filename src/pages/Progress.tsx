@@ -65,7 +65,7 @@ const Progress = () => {
                 >
                   <div>
                     <p className="font-heading text-sm font-semibold text-foreground">
-                      {log.activityTitle}
+                      {getActivityById(log.activityId)?.title || log.activityTitle}
                     </p>
                     <p className="text-xs text-muted-foreground">{log.date}</p>
                   </div>
