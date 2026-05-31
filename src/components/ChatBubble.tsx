@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { speakText, stopSpeaking } from "@/lib/speech";
 
 interface ChatBubbleProps {
   role: "user" | "assistant";
@@ -13,19 +14,12 @@ const ChatBubble = ({ role, content }: ChatBubbleProps) => {
 
   const handleSpeak = () => {
     if (isSpeaking) {
-      window.speechSynthesis.cancel();
+      stopSpeaking();
       setIsSpeaking(false);
       return;
     }
-
-    const utterance = new SpeechSynthesisUtterance(content);
-    utterance.lang = "pt-BR";
-    utterance.rate = 0.85;
-    utterance.pitch = 1.1;
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-    window.speechSynthesis.speak(utterance);
-    setIsSpeaking(true);
+    const started = speakText(content, () => setIsSpeaking(false));
+    if (started) setIsSpeaking(true);
   };
 
   return (

@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import teabotHero from "@/assets/teabot-hero.png";
+import teabotHero from "@/assets/inovatea-logo.png";
 
 type Mode = "welcome" | "login" | "signup";
 type Role = "child" | "therapist";
@@ -152,8 +152,7 @@ const AuthPage = () => {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6 py-12">
         <div className="flex max-w-md flex-col items-center text-center">
-          <img src={teabotHero} alt="TEAbot" className="mb-6 h-40 w-40" />
-          <h1 className="mb-3 font-heading text-4xl font-bold text-foreground">InovaTEA</h1>
+          <img src={teabotHero} alt="Logo InovaTEA" className="mb-6 h-56 w-56 object-contain md:h-64 md:w-64" />
           <p className="mb-8 text-base text-muted-foreground">
             Uma plataforma com IA para apoiar crianças com TEA no desenvolvimento de
             habilidades sociais, junto a seus terapeutas.
