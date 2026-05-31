@@ -80,7 +80,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
       setState((prev) => {
         const alreadyDone = prev.completedToday.includes(activityId);
-        const log: SessionLog = { activityId, activityTitle, date: today, completed: true };
+        const log: SessionLog = { activityId, activityTitle: canonicalTitle, date: today, completed: true };
         return {
           completedToday: alreadyDone ? prev.completedToday : [...prev.completedToday, activityId],
           stars: alreadyDone ? prev.stars : prev.stars + 1,
