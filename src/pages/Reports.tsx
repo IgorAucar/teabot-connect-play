@@ -43,6 +43,7 @@ interface ReportRow {
 }
 
 interface ActivityRow {
+  activity_id: string;
   activity_title: string;
   completed_at: string;
 }
