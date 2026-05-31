@@ -114,7 +114,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
               user_id: user.id,
               device_id: user.id,
               activity_id: activityId,
-              activity_title: activityTitle,
+              activity_title: canonicalTitle,
               stars: 1,
             });
           }
