@@ -320,7 +320,7 @@ const Reports = () => {
                         ) : (
                           activities.map((a, i) => (
                             <p key={i} className="text-muted-foreground">
-                              • {a.activity_title} —{" "}
+                              • {resolveActivityName(a.activity_id, a.activity_title)} —{" "}
                               <span className="text-xs">
                                 {new Date(a.completed_at).toLocaleDateString("pt-BR")}
                               </span>
