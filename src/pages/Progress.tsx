@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import BadgeGrid from "@/components/BadgeGrid";
 import { useAppState } from "@/hooks/useAppState";
-import { activities } from "@/lib/activities";
+import { activities, getActivityById } from "@/lib/activities";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 const Progress = () => {
