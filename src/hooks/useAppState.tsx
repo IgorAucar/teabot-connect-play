@@ -2,7 +2,7 @@ import { createContext, useContext, useState, ReactNode, useCallback, useEffect 
 import type { AppState, SessionLog } from "@/lib/app-state";
 import { initialAppState } from "@/lib/app-state";
 import { supabase } from "@/integrations/supabase/client";
-import { ensureChildProfile, getDeviceId } from "@/lib/device-id";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AppStateCtx {
   state: AppState;
@@ -13,31 +13,34 @@ interface AppStateCtx {
 const AppStateContext = createContext<AppStateCtx | null>(null);
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [state, setState] = useState<AppState>(initialAppState);
   const [loading, setLoading] = useState(true);
 
-  // Load persisted data from Supabase on mount
   useEffect(() => {
+    if (!user) {
+      setState(initialAppState);
+      setLoading(false);
+      return;
+    }
     (async () => {
+      setLoading(true);
       try {
-        const deviceId = await ensureChildProfile();
-
         const [progressRes, logsRes] = await Promise.all([
           supabase
             .from("activity_progress")
             .select("activity_id, completed_at")
-            .eq("device_id", deviceId),
+            .eq("user_id", user.id),
           supabase
             .from("session_logs")
             .select("activity_id, activity_title, completed, started_at")
-            .eq("device_id", deviceId)
+            .eq("user_id", user.id)
             .order("started_at", { ascending: true }),
         ]);
 
         const progressRows = progressRes.data || [];
         const logsRows = logsRes.data || [];
 
-        // completed today (by date string)
         const today = new Date().toLocaleDateString("pt-BR");
         const completedToday = Array.from(
           new Set(
@@ -65,75 +68,60 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [user]);
 
-  const markCompleted = useCallback((activityId: string, activityTitle: string) => {
-    const deviceId = getDeviceId();
-    const today = new Date().toLocaleDateString("pt-BR");
+  const markCompleted = useCallback(
+    (activityId: string, activityTitle: string) => {
+      if (!user) return;
+      const today = new Date().toLocaleDateString("pt-BR");
 
-    setState((prev) => {
-      const alreadyDone = prev.completedToday.includes(activityId);
-      const log: SessionLog = {
-        activityId,
-        activityTitle,
-        date: today,
-        completed: true,
-      };
-      return {
-        completedToday: alreadyDone ? prev.completedToday : [...prev.completedToday, activityId],
-        stars: alreadyDone ? prev.stars : prev.stars + 1,
-        sessionLogs: [...prev.sessionLogs, log],
-      };
-    });
+      setState((prev) => {
+        const alreadyDone = prev.completedToday.includes(activityId);
+        const log: SessionLog = { activityId, activityTitle, date: today, completed: true };
+        return {
+          completedToday: alreadyDone ? prev.completedToday : [...prev.completedToday, activityId],
+          stars: alreadyDone ? prev.stars : prev.stars + 1,
+          sessionLogs: [...prev.sessionLogs, log],
+        };
+      });
 
-    // Persist asynchronously (fire and forget)
-    (async () => {
-      try {
-        await supabase.from("session_logs").insert({
-          device_id: deviceId,
-          activity_id: activityId,
-          activity_title: activityTitle,
-          completed: true,
-          ended_at: new Date().toISOString(),
-        });
-
-        // Only count as a new "star" if not already completed today
-        const { data: existing } = await supabase
-          .from("activity_progress")
-          .select("id, completed_at")
-          .eq("device_id", deviceId)
-          .eq("activity_id", activityId);
-
-        const doneToday = (existing || []).some(
-          (r) => new Date(r.completed_at).toLocaleDateString("pt-BR") === today
-        );
-
-        if (!doneToday) {
-          await supabase.from("activity_progress").insert({
-            device_id: deviceId,
+      (async () => {
+        try {
+          await supabase.from("session_logs").insert({
+            user_id: user.id,
+            device_id: user.id,
             activity_id: activityId,
             activity_title: activityTitle,
-            stars: 1,
+            completed: true,
+            ended_at: new Date().toISOString(),
           });
 
-          // increment total_stars on profile
-          const { data: profile } = await supabase
-            .from("child_profiles")
-            .select("total_stars")
-            .eq("device_id", deviceId)
-            .maybeSingle();
-          if (profile) {
-            await supabase
-              .from("child_profiles")
-              .update({ total_stars: (profile.total_stars || 0) + 1 })
-              .eq("device_id", deviceId);
+          const { data: existing } = await supabase
+            .from("activity_progress")
+            .select("id, completed_at")
+            .eq("user_id", user.id)
+            .eq("activity_id", activityId);
+
+          const doneToday = (existing || []).some(
+            (r) => new Date(r.completed_at).toLocaleDateString("pt-BR") === today
+          );
+
+          if (!doneToday) {
+            await supabase.from("activity_progress").insert({
+              user_id: user.id,
+              device_id: user.id,
+              activity_id: activityId,
+              activity_title: activityTitle,
+              stars: 1,
+            });
           }
+        } catch (err) {
+          console.error("Failed to persist completion:", err);
         }
-      } catch (err) {
-        console.error("Failed to persist completion:", err);
-      }
-    })();
-  }, []);
+      })();
+    },
+    [user]
+  );
 
   return (
     <AppStateContext.Provider value={{ state, markCompleted, loading }}>

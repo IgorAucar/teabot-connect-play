@@ -1,9 +1,20 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
+import { useAuth } from "@/hooks/useAuth";
 import teabotHero from "@/assets/teabot-hero.png";
 
 const Home = () => {
+  const { user, role, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && user && role) {
+      navigate(role === "therapist" ? "/terapeuta" : "/dashboard", { replace: true });
+    }
+  }, [user, role, loading, navigate]);
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
@@ -24,17 +35,22 @@ const Home = () => {
             Um assistente com IA para ajudar crianças com TEA a praticar
             habilidades sociais de forma segura, divertida e encorajadora.
           </p>
-          <Link to="/dashboard">
-            <Button variant="hero" size="lg">
-              Começar Agora
-            </Button>
-          </Link>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link to="/auth">
+              <Button variant="hero" size="lg">
+                Entrar
+              </Button>
+            </Link>
+            <Link to="/auth">
+              <Button variant="outline" size="lg">
+                Criar Conta
+              </Button>
+            </Link>
+          </div>
         </div>
       </main>
       <footer className="border-t border-border py-6 text-center">
-        <p className="text-sm text-muted-foreground">
-          InovaTEA — Manaus, AM
-        </p>
+        <p className="text-sm text-muted-foreground">InovaTEA — Manaus, AM</p>
       </footer>
     </div>
   );
