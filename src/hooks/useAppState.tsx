@@ -74,6 +74,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const markCompleted = useCallback(
     (activityId: string, activityTitle: string) => {
       if (!user) return;
+      // Always prefer canonical title from catalog so we never store the wrong name.
+      const canonicalTitle = getActivityById(activityId)?.title || activityTitle || activityId;
       const today = new Date().toLocaleDateString("pt-BR");
 
       setState((prev) => {
